@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ଅଣୁଜୀବ ଜଗତ - Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kohinoor+Odia:wght@400;700&display=swap');
+        body {
+            font-family: 'Kohinoor Odia', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+        .correct {
+            background-color: #22c55e !important;
+            color: white !important;
+            border-color: #16a34a !important;
+        }
+        .wrong {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Container -->
+    <div id="app" class="w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="p-8 text-center">
+            <h1 class="text-3xl font-bold text-blue-800 mb-4">ଅଣୁଜୀବ ଜଗତ (Chapter 2)</h1>
+            <p class="text-gray-600 mb-6">ଏହି କୁଇଜ୍‌ରେ ୫୦ଟି ବହୁବିକଳ୍ପ ପ୍ରଶ୍ନ ଅଛି । ଆପଣଙ୍କ ପାଖରେ ୩୦ ମିନିଟ୍ ସମୟ ଅଛି ।</p>
+            <div class="bg-blue-50 p-4 rounded-lg mb-8 text-left text-sm">
+                <ul class="list-disc list-inside space-y-2 text-blue-900">
+                    <li>ସମୟ: ୩୦ ମିନିଟ୍</li>
+                    <li>ପ୍ରଶ୍ନ ସଂଖ୍ୟା: ୫୦</li>
+                    <li>ସଠିକ୍ ଉତ୍ତର ପାଇଁ ସବୁଜ ରଙ୍ଗ</li>
+                    <li>ଭୁଲ୍ ଉତ୍ତର ପାଇଁ ନାଲି ରଙ୍ଗ</li>
+                </ul>
+            </div>
+            <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-all transform hover:scale-105">
+                ପରୀକ୍ଷା ଆରମ୍ଭ କରନ୍ତୁ
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <!-- Header -->
+            <div class="bg-blue-600 p-4 text-white flex justify-between items-center">
+                <span id="question-counter" class="font-medium">ପ୍ରଶ୍ନ ୧ / ୫୦</span>
+                <div class="flex items-center space-x-2 bg-blue-800 px-3 py-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span id="timer" class="font-mono text-xl">30:00</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 h-2">
+                <div id="progress-bar" class="bg-blue-400 h-2 transition-all duration-300" style="width: 2%"></div>
+            </div>
+
+            <!-- Question Body -->
+            <div class="p-6">
+                <h2 id="question-text" class="text-xl font-bold text-gray-800 mb-6 leading-relaxed">
+                    ପ୍ରଶ୍ନ ଲୋଡ୍ ହେଉଛି...
+                </h2>
+                
+                <div id="options-container" class="grid grid-cols-1 gap-3">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="p-6 border-t flex justify-end">
+                <button id="next-btn" onclick="nextQuestion()" class="hidden bg-gray-800 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-700 transition">
+                    ପରବର୍ତ୍ତୀ ପ୍ରଶ୍ନ
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden p-8 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">ପରୀକ୍ଷା ଶେଷ!</h2>
+            <div id="score-circle" class="w-32 h-32 rounded-full border-8 border-blue-500 flex items-center justify-center mx-auto my-6 text-2xl font-bold">
+                0/50
+            </div>
+            <p id="remark" class="text-xl font-semibold mb-6"></p>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-green-50 p-4 rounded-xl">
+                    <p class="text-green-600 text-sm">ସଠିକ୍</p>
+                    <p id="correct-count" class="text-2xl font-bold text-green-700">0</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-xl">
+                    <p class="text-red-600 text-sm">ଭୁଲ୍</p>
+                    <p id="wrong-count" class="text-2xl font-bold text-red-700">0</p>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition">
+                ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Questions Data (50 Questions based on Chapter 2)
+        const quizData = [
+            { q: "ଅଣୁଜୀବମାନଙ୍କୁ ଦେଖିବା ପାଇଁ କେଉଁ ଯନ୍ତ୍ର ବ୍ୟବହାର କରାଯାଏ?", a: ["ଅଣୁବୀକ୍ଷଣ ଯନ୍ତ୍ର", "ଦୂରବୀକ୍ଷଣ ଯନ୍ତ୍ର", "ଷ୍ଟେଥୋସ୍କୋପ୍", "ଥର୍ମୋମିଟର"], c: 0 },
+            { q: "ପେନିସିଲିନ୍ କିଏ ଆବିଷ୍କାର କରିଥିଲେ?", a: ["ଆଲେକ୍‌ଜାଣ୍ଡାର୍ ଫ୍ଲେମିଙ୍ଗ", "ଲୁଇ ପାଶ୍ଚର୍", "ଏଡୱାର୍ଡ ଜେନର", "ରବର୍ଟ କୋଚ୍"], c: 0 },
+            { q: "ନିମ୍ନଲିଖିତ ମଧ୍ୟରୁ କେଉଁଟି ଏକ ଅଣୁଜୀବ ନୁହେଁ?", a: ["ପିମ୍ପୁଡ଼ି", "ଭୂତାଣୁ", "କବକ", "ଶୈବାଳ"], c: 0 },
+            { q: "ଇଷ୍ଟ ବ୍ୟବହାର କରି କ’ଣ ପ୍ରସ୍ତୁତ କରାଯାଏ?", a: ["ମଦ୍ୟସାର", "ଚିନି", "ଲୁଣ", "ତେଲ"], c: 0 },
+            { q: "ବାୟୁମଣ୍ଡଳରୁ ଯବକ୍ଷାରଜାନ ବିବନ୍ଧନ କେଉଁ ଅଣୁଜୀବ କରେ?", a: ["ରାଇଜୋବିୟମ୍", "ଭୂତାଣୁ", "ଇଷ୍ଟ", "ପେନିସିଲିୟମ୍"], c: 0 },
+            { q: "ମ୍ୟାଲେରିଆ ଜ୍ୱର ପାଇଁ ଦାୟୀ ପ୍ରୋଟୋଜୋଆର ନାମ କ’ଣ?", a: ["ପ୍ଲାଜମୋଡିୟମ୍", "ଅମିବା", "ପାରାମିସିୟମ୍", "ଭୂତାଣୁ"], c: 0 },
+            { q: "ମାଈ ଏନୋଫିଲିସ୍ ମଶା କେଉଁ ରୋଗର ବାହକ?", a: ["ମ୍ୟାଲେରିଆ", "ଡେଙ୍ଗୁ", "କଲେରା", "ଟାଇଫଏଡ୍"], c: 0 },
+            { q: "କ୍ଷୀରକୁ ଦହିରେ ପରିଣତ କରୁଥିବା ବ୍ୟାକ୍ଟେରିଆର ନାମ କ’ଣ?", a: ["ଲାକ୍ଟୋବାସିଲସ୍", "ରାଇଜୋବିୟମ୍", "ଷ୍ଟ୍ରେପ୍ଟୋମାଇସିନ୍", "ଭିବ୍ରିଓ"], c: 0 },
+            { q: "ଚିନିକୁ ମଦ୍ୟସାରରେ ପରିଣତ କରିବା ପ୍ରକ୍ରିୟାକୁ କ’ଣ କୁହାଯାଏ?", a: ["କିଣ୍ଵନ (Fermentation)", "ଯବକ୍ଷାରଜାନ ବିବନ୍ଧନ", "ପାଶ୍ଚରାଇଜେସନ", "ସଂରକ୍ଷଣ"], c: 0 },
+            { q: "ବସନ୍ତ ରୋଗର ଟୀକା କିଏ ବାହାର କରିଥିଲେ?", a: ["ଏଡୱାର୍ଡ ଜେନର", "ଲୁଇ ପାଶ୍ଚର୍", "ଆଲେକ୍‌ଜାଣ୍ଡାର୍ ଫ୍ଲେମିଙ୍ଗ", "ଆଇନଷ୍ଟାଇନ"], c: 0 },
+            { q: "ଭୂତାଣୁ କେଉଁଠାରେ ବଂଶବୃଦ୍ଧି କରେ?", a: ["ପୋଷକ କୋଷ ମଧ୍ୟରେ", "ବାୟୁରେ", "ମାଟିରେ", "ଜଳରେ"], c: 0 },
+            { q: "ଟାଇଫଏଡ୍ କାହା ଦ୍ୱାରା ହୋଇଥାଏ?", a: ["ବ୍ୟାକ୍ଟେରିଆ", "ଭୂତାଣୁ", "କବକ", "ପ୍ରୋଟୋଜୋଆ"], c: 0 },
+            { q: "ନିମ୍ନଲିଖିତ ମଧ୍ୟରୁ କେଉଁଟି ପ୍ରତିଜୈବିକ (Antibiotic)?", a: ["ଷ୍ଟ୍ରେପ୍ଟୋମାଇସିନ୍", "ସୋଡିୟମ ବାଇକାର୍ବୋନେଟ", "ମଦ୍ୟସାର", "ଇଷ୍ଟ"], c: 0 },
+            { q: "ପାଉଁରୁଟି ଫୁଲିବାର କାରଣ କ’ଣ?", a: ["ଇଷ୍ଟ କୋଷର ବୃଦ୍ଧି", "ଉତ୍ତାପ", "ମର୍ଦ୍ଦନ", "ଜଳ"], c: 0 },
+            { q: "କାଛୁ-କୁଣ୍ଡିଆ କେଉଁ ଶ୍ରେଣୀର ଅଣୁଜୀବ ଦ୍ୱାରା ହୁଏ?", a: ["କବକ", "ବ୍ୟାକ୍ଟେରିଆ", "ଭୂତାଣୁ", "ଶୈବାଳ"], c: 0 },
+            { q: "ଅତି କ୍ଷୁଦ୍ର ଅଣୁଜୀବ କିଏ?", a: ["ଭୂତାଣୁ", "ବ୍ୟାକ୍ଟେରିଆ", "ଅମିବା", "ଇଷ୍ଟ"], c: 0 },
+            { q: "ମୂଷା ଦ୍ୱାରା କେଉଁ ରୋଗ ବ୍ୟାପିଥାଏ?", a: ["ପ୍ଲେଗ୍", "ମ୍ୟାଲେରିଆ", "ପୋଲିଓ", "କଲେରା"], c: 0 },
+            { q: "କ୍ଲୋରେଲା କେଉଁ ପ୍ରକାରର ଅଣୁଜୀବ?", a: ["ଶୈବାଳ", "କବକ", "ବ୍ୟାକ୍ଟେରିଆ", "ଭୂତାଣୁ"], c: 0 },
+            { q: "କେଉଁ ଅଣୁଜୀବ ଦ୍ୱାରା ଲେମ୍ବୁର ସାଇଟ୍ରସ କାଙ୍କର (Citrus Canker) ହୁଏ?", a: ["ବ୍ୟାକ୍ଟେରିଆ", "କବକ", "ଭୂତାଣୁ", "କୀଟ"], c: 0 },
+            { q: "ଶିମ୍ବ ଜାତୀୟ ଗଛର ଚେରରେ କେଉଁ ବ୍ୟାକ୍ଟେରିଆ ଥାଏ?", a: ["ରାଇଜୋବିୟମ୍", "ଲାକ୍ଟୋବାସିଲସ୍", "ଭିବ୍ରିଓ", "ବ୍ୟାସିଲସ୍"], c: 0 },
+            { q: "ଆନ୍ଥ୍ରାକ୍ସ ରୋଗ କାହାଠାରେ ଦେଖାଯାଏ?", a: ["ଗୋରୁଗାଈ ଓ ମଣିଷ", "କେବଳ ମାଛ", "କେବଳ ପକ୍ଷୀ", "ଗଛ"], c: 0 },
+            { q: "ଖାଦ୍ୟ ବିଷାକ୍ତ (Food Poisoning) ହେବା ପାଇଁ କିଏ ଦାୟୀ?", a: ["ଅଣୁଜୀବ", "ପବନ", "ଜଳ", "ପରିଷ୍କାର ପାତ୍ର"], c: 0 },
+            { q: "ଲୁଇ ପାଶ୍ଚର୍ କେଉଁ ବର୍ଷ କିଣ୍ଵନ ପ୍ରକ୍ରିୟା ଆବିଷ୍କାର କରିଥିଲେ?", a: ["୧୮୫୭", "୧୮୦୦", "୧୯୨୯", "୧୭୯୮"], c: 0 },
+            { q: "ପୋଲିଓ ରୋଗ କାହା ଦ୍ୱାରା ବ୍ୟାପେ?", a: ["ବାୟୁ ଓ ଜଳ", "ମଶା", "ମାଛି", "ଖାଦ୍ୟ"], c: 0 },
+            { q: "ଧାନର ବ୍ଲାଷ୍ଟ ରୋଗ କାହା ଦ୍ୱାରା ହୁଏ?", a: ["କବକ", "ବ୍ୟାକ୍ଟେରିଆ", "ଭୂତାଣୁ", "ପ୍ରୋଟୋଜୋଆ"], c: 0 },
+            { q: "ଆଚାରରେ କେଉଁ ସଂରକ୍ଷକ (Preservative) ବ୍ୟବହାର ହୁଏ?", a: ["ଲୁଣ ଓ ତେଲ", "ଚିନି", "କେବଳ ପାଣି", "ହଳଦୀ"], c: 0 },
+            { q: "ଜାମ୍ କିମ୍ବା ସ୍କ୍ଵାସ୍ ସଂରକ୍ଷଣ ପାଇଁ କ’ଣ ବ୍ୟବହାର ହୁଏ?", a: ["ଚିନି", "ଲୁଣ", "ତେଲ", "ଲଙ୍କା ଗୁଣ୍ଡ"], c: 0 },
+            { q: "ଯକ୍ଷ୍ମା (T.B.) ରୋଗର ବାହକ କିଏ?", a: ["ବାୟୁ", "ଜଳ", "ମଶା", "ସଂସ୍ପର୍ଶ"], c: 0 },
+            { q: "ମାଈ ଏଡିସ୍ ମଶା କେଉଁ ରୋଗ ବ୍ୟାପେ?", a: ["ଡେଙ୍ଗୁ", "ମ୍ୟାଲେରିଆ", "ଫାଇଲେରିଆ", "ଟାଇଫଏଡ୍"], c: 0 },
+            { q: "ଏଡ୍ସ (AIDS) ରୋଗ କାହା ଦ୍ୱାରା ହୋଇଥାଏ?", a: ["HIV ଭୂତାଣୁ", "ବ୍ୟାକ୍ଟେରିଆ", "କବକ", "ପ୍ରୋଟୋଜୋଆ"], c: 0 },
+            { q: "ମୃତ ଜୀବଜନ୍ତୁଙ୍କୁ ପଚାଇ ମାଟିରେ ମିଶାଇ ଦିଅନ୍ତି କିଏ?", a: ["ଅପଘଟକ ଅଣୁଜୀବ", "ଭୂତାଣୁ", "ପରଜୀବୀ", "କୀଟ"], c: 0 },
+            { q: "ହଇଜା (Cholera) କେଉଁ ପ୍ରକାରର ଅଣୁଜୀବ ଦ୍ୱାରା ହୁଏ?", a: ["ବ୍ୟାକ୍ଟେରିଆ", "ଭୂତାଣୁ", "ପ୍ରୋଟୋଜୋଆ", "ଶୈବାଳ"], c: 0 },
+            { q: "କେଉଁଟି ଏକ ପ୍ରୋଟୋଜୋଆ?", a: ["ଅମିବା", "ସ୍କାଇରୋଗାଇରା", "କ୍ଲାମିଡୋମୋନାସ", "ପେନିସିଲିୟମ"], c: 0 },
+            { q: "କେଉଁଟି ଏକ କବକ?", a: ["ଛତୁ", "ନୀଳହରିତ୍ ଶୈବାଳ", "ରାଇଜୋବିୟମ୍", "ପାରାମିସିୟମ୍"], c: 0 },
+            { q: "ପ୍ରତିଜୈବିକ କେବଳ କାହା ପରାମର୍ଶରେ ଖାଇବା ଉଚିତ୍?", a: ["ଡାକ୍ତର", "ସାଙ୍ଗ", "ନିଜେ", "ଦୋକାନୀ"], c: 0 },
+            { q: "ଟୀକା କେଉଁଠାରେ ଦିଆଯାଏ?", a: ["ଉଭୟ ଶରୀର ଓ ମୁହଁ", "କେବଳ ଆଖିରେ", "କେବଳ କାନରେ", "କେବଳ ପାଦରେ"], c: 0 },
+            { q: "ପାଶ୍ଚରାଇଜ୍‌ଡ୍ କ୍ଷୀରକୁ କେତେ ଡିଗ୍ରୀ ସେଲସିୟସରେ ଗରମ କରାଯାଏ?", a: ["୭୦°C", "୧୦୦°C", "୫୦°C", "୩୦°C"], c: 0 },
+            { q: "ବାୟୁମଣ୍ଡଳରେ କେତେ ପ୍ରତିଶତ ଯବକ୍ଷାରଜାନ ଅଛି?", a: ["୭୮%", "୨୧%", "୦.୦୩%", "୧%"], c: 0 },
+            { q: "ମାଛି ମାନେ ରୋଗ କିପରି ବ୍ୟାପନ୍ତି?", a: ["ମଇଳା ଉପରେ ବସି ଖାଦ୍ୟରେ ବସନ୍ତି", "ରକ୍ତ ଶୋଷି", "ବାୟୁ ଦ୍ୱାରା", "ପାଣି ଦ୍ୱାରା"], c: 0 },
+            { q: "କୁକୁଡ଼ା ମାନଙ୍କର 'ବାର୍ଡ ଫ୍ଲୁ' କାହା ଦ୍ୱାରା ହୁଏ?", a: ["ଭୂତାଣୁ", "ବ୍ୟାକ୍ଟେରିଆ", "କବକ", "ପୋକ"], c: 0 },
+            { q: "ଗହମର କଳଙ୍କୀ (Rust) ରୋଗ କାହା ଦ୍ୱାରା ହୁଏ?", a: ["କବକ", "ବ୍ୟାକ୍ଟେରିଆ", "ବାୟୁ", "ଭୂତାଣୁ"], c: 0 },
+            { q: "ଭେଣ୍ଡିର ପୀତ ଶିରା ମୋଜାଇକ୍ (Yellow vein mosaic) କାହା ଦ୍ୱାରା ହୁଏ?", a: ["ଭୂତାଣୁ", "କବକ", "ବ୍ୟାକ୍ଟେରିଆ", "ପବନ"], c: 0 },
+            { q: "ପୋଲିଓ ଏବଂ ହାଡ଼ଫୁଟି କେଉଁ ପ୍ରକାରର ରୋଗ?", a: ["ସଂକ୍ରାମକ ଭୂତାଣୁ ରୋଗ", "ଅଣ-ସଂକ୍ରାମକ", "ବ୍ୟାକ୍ଟେରିଆ ରୋଗ", "ଅଭାବଜନିତ"], c: 0 },
+            { q: "ଲୁଣ ଓ ଖାଇବା ତେଲକୁ କ’ଣ କୁହାଯାଏ?", a: ["ଖାଦ୍ୟ ସଂରକ୍ଷକ", "କିଣ୍ଵନକାରୀ", "ପ୍ରତିଜୈବିକ", "ଟୀକା"], c: 0 },
+            { q: "ସୋଡିୟମ୍ ବେଞ୍ଜୋଏଟ୍ କ’ଣ?", a: ["ରାସାୟନିକ ସଂରକ୍ଷକ", "ଲୁଣ", "କବକ", "ବ୍ୟାକ୍ଟେରିଆ"], c: 0 },
+            { q: "ରୁପି (Dandruff) ଶରୀରର କେଉଁ ଅଂଶରେ ହୁଏ?", a: ["ମୁଣ୍ଡର ଚମ", "ପେଟ", "ହାତ", "ଆଖି"], c: 0 },
+            { q: "ପେନିସିଲିୟମ୍ କେଉଁ ଶ୍ରେଣୀର?", a: ["କବକ", "ଶୈବାଳ", "ପ୍ରୋଟୋଜୋଆ", "ବ୍ୟାକ୍ଟେରିଆ"], c: 0 },
+            { q: "କ୍ଷୀରକୁ କେତେ ସମୟ ଗରମ କରାଯାଏ (Pasteurization)?", a: ["୧୫-୩୦ ସେକେଣ୍ଡ", "୫ ମିନିଟ୍", "୧ ଘଣ୍ଟା", "୧୦ ସେକେଣ୍ଡ"], c: 0 },
+            { q: "ନୀଳହରିତ୍ ଶୈବାଳ ମାଟିର କେଉଁ ଗୁଣ ବୃଦ୍ଧି କରେ?", a: ["ଉର୍ବରତା", "ଖରାପ ଗୁଣ", "ଅମ୍ଳତା", "କ୍ଷାରୀୟତା"], c: 0 },
+            { q: "ଅଣୁଜୀବମାନେ ଆମର ____?", a: ["ବନ୍ଧୁ ଓ ଶତ୍ରୁ", "କେବଳ ଶତ୍ରୁ", "କେବଳ ବନ୍ଧୁ", "କେହି ନୁହେଁ"], c: 0 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 1800; // 30 mins in seconds
+        let timerId;
+        let shuffledQuestions = [];
+        let canAnswer = true;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const timerDisplay = document.getElementById('timer');
+        const questionCounter = document.getElementById('question-counter');
+        const progressBar = document.getElementById('progress-bar');
+        const nextBtn = document.getElementById('next-btn');
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function startQuiz() {
+            shuffledQuestions = shuffle([...quizData]);
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            startTimer();
+            showQuestion();
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                if (timeLeft <= 0) {
+                    endQuiz();
+                } else {
+                    timeLeft--;
+                    let mins = Math.floor(timeLeft / 60);
+                    let secs = timeLeft % 60;
+                    timerDisplay.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                    if (timeLeft < 300) timerDisplay.parentElement.classList.replace('bg-blue-800', 'bg-red-600');
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            canAnswer = true;
+            nextBtn.classList.add('hidden');
+            const question = shuffledQuestions[currentQuestionIndex];
+            questionText.innerText = `${currentQuestionIndex + 1}. ${question.q}`;
+            questionCounter.innerText = `ପ୍ରଶ୍ନ ${currentQuestionIndex + 1} / ${shuffledQuestions.length}`;
+            
+            // Progress Bar
+            progressBar.style.width = `${((currentQuestionIndex + 1) / shuffledQuestions.length) * 100}%`;
+
+            optionsContainer.innerHTML = '';
+            
+            // Shuffle options for each attempt
+            let options = question.a.map((opt, idx) => ({ text: opt, isCorrect: idx === question.c }));
+            options = shuffle(options);
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-4 border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 font-medium text-gray-700 bg-white";
+                btn.innerText = opt.text;
+                btn.onclick = () => selectOption(btn, opt.isCorrect);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(btn, isCorrect) {
+            if (!canAnswer) return;
+            canAnswer = false;
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('wrong');
+                // Highlight correct one
+                Array.from(optionsContainer.children).forEach(child => {
+                    const question = shuffledQuestions[currentQuestionIndex];
+                    if (child.innerText === question.a[question.c]) {
+                        child.classList.add('correct');
+                    }
+                });
+            }
+
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(timerId);
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            document.getElementById('score-circle').innerText = `${score}/${shuffledQuestions.length}`;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = shuffledQuestions.length - score;
+
+            const remark = document.getElementById('remark');
+            const percent = (score / shuffledQuestions.length) * 100;
+
+            if (percent >= 90) {
+                remark.innerText = "ଅତି ଉତ୍ତମ! ଆପଣ ଏହି ପାଠଟିକୁ ବହୁତ ଭଲ ଭାବେ ବୁଝିଛନ୍ତି ।";
+                remark.className = "text-xl font-semibold mb-6 text-green-600";
+            } else if (percent >= 60) {
+                remark.innerText = "ଭଲ ପ୍ରଦର୍ଶନ! କିନ୍ତୁ ଆଉ ଟିକେ ପଢ଼ିବା ଆବଶ୍ୟକ ।";
+                remark.className = "text-xl font-semibold mb-6 text-blue-600";
+            } else {
+                remark.innerText = "ଚେଷ୍ଟା ଜାରି ରଖନ୍ତୁ । ପାଠ୍ୟପୁସ୍ତକଟିକୁ ପୁଣି ଥରେ ପଢନ୍ତୁ ।";
+                remark.className = "text-xl font-semibold mb-6 text-orange-600";
+            }
+        }
+    </script>
+</body>
+</html>
